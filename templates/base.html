@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}CGW Digital Twin{% endblock %}</title>
+
+  <!-- Tailwind via CDN (prático para começar) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- HTMX para interações sem recarregar a página -->
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+  <link rel="icon" href="/static/favicon.svg" />
+  {% block head %}{% endblock %}
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-indigo-600 rounded-xl"></div>
+        <span class="font-semibold tracking-tight">CGW Digital Twin</span>
+      </div>
+      <nav class="flex items-center gap-6 text-sm">
+        <a href="{% url 'core:dashboard' %}" class="hover:text-indigo-600">Dashboard</a>
+        {% if user.is_authenticated %}
+        <span class="text-slate-500">Olá, {{ user.get_short_name|default:user.username }}</span>
+        <a href="{% url 'logout' %}" class="text-red-600 hover:underline">Sair</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="hover:text-indigo-600">Entrar</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  <main class="max-w-7xl mx-auto px-4 py-8">
+  {% if messages %}
+    <div class="mb-4 space-y-2">
+      {% for message in messages %}
+        <div class="p-3 rounded-xl border
+                    {% if message.tags == 'success' %} bg-emerald-50 border-emerald-200 text-emerald-800
+                    {% elif message.tags == 'error' %} bg-red-50 border-red-200 text-red-800
+                    {% elif message.tags == 'warning' %} bg-amber-50 border-amber-200 text-amber-800
+                    {% else %} bg-slate-50 border-slate-200 text-slate-700 {% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+  <footer class="max-w-7xl mx-auto px-4 py-10 text-sm text-slate-500">
+    <p>© {{ now|date:"Y" }} CGW — Gêmeo Digital</p>
+  </footer>
+</body>
+</html>

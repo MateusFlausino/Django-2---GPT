@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · CGW Digital Twin{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold tracking-tight mb-4">Dashboard</h1>
+
+<!-- barra de busca e upload -->
+<div class="grid md:grid-cols-3 gap-4 mb-6">
+  <form
+    class="col-span-2"
+    hx-get="{% url 'core:asset_list_partial' %}"
+    hx-target="#asset-list"
+    hx-push-url="true"
+    hx-include="[name='q']"
+  >
+    <label class="block text-sm font-medium mb-2">Buscar ativos</label>
+    <div class="relative">
+      <input
+        type="search" name="q" value="{{ q }}"
+        class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 pr-10"
+        placeholder="Ex.: bomba, sensor, linha 2, sala A..."
+        hx-get="{% url 'core:asset_list_partial' %}"
+        hx-trigger="keyup changed delay:300ms"
+        hx-target="#asset-list"
+      />
+      <span class="absolute right-3 top-2.5 text-slate-400">⌘K</span>
+    </div>
+    <p class="text-sm text-slate-500 mt-2">Resultados: <strong>{{ total }}</strong></p>
+  </form>
+
+  <form class="col-span-1" method="post" action="{% url 'core:upload' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label class="block text-sm font-medium mb-2">Upload de dados</label>
+    <div class="flex items-center gap-2">
+      {{ upload_form.arquivo }}
+      <button class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">
+        Enviar
+      </button>
+    </div>
+    <p class="text-xs text-slate-500 mt-1">Aceita CSV/JSON. Arquivos ficam em <code>/media</code>.</p>
+  </form>
+</div>
+
+<!-- cards/resumo -->
+<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="p-4 rounded-2xl border bg-white">
+    <p class="text-sm text-slate-500">Ativos carregados</p>
+    <p class="text-2xl font-semibold">{{ total }}</p>
+  </div>
+  <div class="p-4 rounded-2xl border bg-white">
+    <p class="text-sm text-slate-500">Status geral</p>
+    <p class="text-2xl font-semibold">OK</p>
+  </div>
+  <div class="p-4 rounded-2xl border bg-white">
+    <p class="text-sm text-slate-500">Alertas</p>
+    <p class="text-2xl font-semibold">0</p>
+  </div>
+  <div class="p-4 rounded-2xl border bg-white">
+    <p class="text-sm text-slate-500">Última atualização</p>
+    <p class="text-2xl font-semibold">{{ now|date:"d/m/Y H:i" }}</p>
+  </div>
+</div>
+
+<!-- lista de ativos (HTMX target) -->
+<div id="asset-list"
+     hx-get="{% url 'core:asset_list_partial' %}?q={{ q|urlencode }}"
+     hx-trigger="load"
+>
+  <!-- conteúdo inicial vem via HTMX -->
+  <div class="text-slate-400">Carregando ativos…</div>
+</div>
+{% endblock %}

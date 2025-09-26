@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Entrar · CGW Digital Twin{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+  <div class="p-6 rounded-2xl border bg-white shadow-sm">
+    <h1 class="text-xl font-semibold mb-4">Entrar</h1>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Usuário ou e-mail</label>
+          <input type="text" name="username" value="{{ form.username.value|default_if_none:'' }}"
+                 class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                 placeholder="seuusuario ou voce@exemplo.com" required />
+          {% if form.username.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Senha</label>
+          <input type="password" name="password"
+                 class="w-full rounded-xl border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                 placeholder="••••••••" required />
+          {% if form.password.errors %}
+            <p class="text-sm text-red-600 mt-1">{{ form.password.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <div class="flex items-center justify-between">
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input type="checkbox" name="remember_me" {% if form.remember_me.value %}checked{% endif %}
+                   class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+            Manter conectado
+          </label>
+          <!-- link de esqueceu a senha, se quiser implementar password reset depois -->
+          <a class="text-sm text-indigo-700 hover:underline opacity-60 pointer-events-none">Esqueceu a senha?</a>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+            {{ form.non_field_errors.0 }}
+          </div>
+        {% endif %}
+
+        <button class="w-full py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">
+          Entrar
+        </button>
+      </div>
+    </form>
+  </div>
+  <p class="text-center text-sm text-slate-500 mt-4">
+    Dica: crie um usuário com <code>python manage.py createsuperuser</code> se ainda não tiver.
+  </p>
+</div>
+{% endblock %}
