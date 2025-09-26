@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Viewer · CGW Digital Twin{% endblock %}
+
+{% block head %}
+<style>
+  #forgeViewer { height: 75vh; border-radius: 1rem; overflow: hidden; }
+</style>
+<!-- Forge Viewer (APS) CDN -->
+<link rel="stylesheet"
+      href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" />
+<script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold tracking-tight mb-4">Viewer do Gêmeo Digital</h1>
+
+<div class="p-3 rounded-2xl border bg-white shadow-sm mb-4">
+  <p class="text-sm text-slate-600">
+    <strong>URN atual:</strong>
+    {% if aps_urn %}<code>{{ aps_urn }}</code>{% else %}<em>não configurado</em>{% endif %}
+    · <a class="text-indigo-700 hover:underline" href="{% url 'core:profile' %}">configurar</a>
+  </p>
+</div>
+
+<div id="forgeViewer" class="bg-slate-200"></div>
+
+<script>
+(function initViewer() {
+  // Verifica se o bundle do viewer carregou
+  if (typeof Autodesk === "undefined" || !Autodesk.Viewing) {
+    console.error("APS Viewer ainda não carregou. Verifique o <script src=...viewer3D.min.js>.");
+    return;
+  }
+
+  const apsUrn = "{{ aps_urn|escapejs }}";
+  const region = "{{ aps_region|escapejs }}" === "EMEA" ? "EMEA" : "US";
+
+  if (!apsUrn) {
+    document.getElementById('forgeViewer').innerHTML =
+      '<div class="p-6 text-center text-slate-600">Configure um URN no seu perfil para carregar o modelo.</div>';
+    return;
+  }
+
+  async function fetchToken() {
+    const r = await fetch("{% url 'core:aps_token' %}", { credentials: "same-origin" });
+    if (!r.ok) throw new Error("Falha ao obter token APS");
+    const j = await r.json();
+    return { access_token: j.access_token, expires_in: j.expires_in };
+  }
+
+  const options = {
+    env: "AutodeskProduction2",
+    api: "streamingV2",
+    getAccessToken: async (onToken) => {
+      const t = await fetchToken();
+      onToken(t.access_token, t.expires_in);
+    },
+    region: region,
+  };
+
+  Autodesk.Viewing.Initializer(options, () => {
+    const viewerDiv = document.getElementById("forgeViewer");
+    const viewer = new Autodesk.Viewing.GuiViewer3D(viewerDiv);
+    const started = viewer.start();
+    if (started > 0) { console.error("Viewer não iniciou:", started); return; }
+
+    const docId = (apsUrn.startsWith("urn:") ? apsUrn : "urn:" + apsUrn);
+    Autodesk.Viewing.Document.load(docId, (doc) => {
+      const viewable = doc.getRoot().getDefaultGeometry();
+      viewer.loadDocumentNode(doc, viewable).then(async () => {
+        // extensões úteis (tente/ignore se não existir)
+        try { await viewer.loadExtension("Autodesk.Tandem"); } catch(e) {}
+        try { await viewer.loadExtension("Autodesk.Viewing.MarkupsCore"); } catch(e) {}
+        try { await viewer.loadExtension("Autodesk.Viewing.MarkupsGui"); } catch(e) {}
+      });
+    }, (err) => {
+      viewerDiv.innerHTML = '<div class="p-6 text-center text-red-700">Erro ao carregar documento: ' + err + '</div>';
+    });
+  });
+})();
+</script>
+
+{% endblock %}

@@ -54,3 +54,18 @@ class EmailOrUsernameAuthenticationForm(forms.Form):
 
     def get_user(self):
         return self._user
+
+class UserProfileForm(forms.Form):
+    aps_urn = forms.CharField(
+        label="URN do modelo (APS/Tandem)",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "ex.: dXJuOmFkc2sub2JqZWN0cy5kZXJpdmF0aXZlLi4u"})
+    )
+    tandem_project_id = forms.CharField(
+        label="Tandem Project ID (opcional)",
+        required=False
+    )
+    tandem_twin_id = forms.CharField(
+        label="Tandem Twin ID (opcional)",
+        required=False
+    )

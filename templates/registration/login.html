@@ -7,6 +7,9 @@
     <h1 class="text-xl font-semibold mb-4">Entrar</h1>
     <form method="post" novalidate>
       {% csrf_token %}
+      {% if request.GET.next %}
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
+  {% endif %}
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-1">Usuário ou e-mail</label>

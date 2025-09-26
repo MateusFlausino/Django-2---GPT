@@ -86,3 +86,9 @@ MESSAGE_TAGS = {
     messages.WARNING: "warning",
     messages.ERROR: "error",
 }
+
+# ---- APS (Forge) ----
+APS_CLIENT_ID = os.getenv("APS_CLIENT_ID", "")
+APS_CLIENT_SECRET = os.getenv("APS_CLIENT_SECRET", "")
+APS_SCOPES = os.getenv("APS_SCOPES", "data:read viewables:read")
+APS_REGION = os.getenv("APS_REGION", "US")  # "US" ou "EMEA"

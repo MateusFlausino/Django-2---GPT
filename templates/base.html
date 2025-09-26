@@ -6,7 +6,14 @@
   <title>{% block title %}CGW Digital Twin{% endblock %}</title>
 
   <!-- Tailwind via CDN (prático para começar) -->
+ {% load static %}
+{% comment %} Em DEV usa CDN; em PROD usa o CSS gerado {% endcomment %}
+{% if debug %}
   <script src="https://cdn.tailwindcss.com"></script>
+{% else %}
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+{% endif %}
+
   <!-- HTMX para interações sem recarregar a página -->
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 
@@ -22,6 +29,8 @@
         <span class="font-semibold tracking-tight">CGW Digital Twin</span>
       </div>
       <nav class="flex items-center gap-6 text-sm">
+        <a href="{% url 'core:viewer' %}" class="hover:text-indigo-600">Viewer</a>
+        <a href="{% url 'core:profile' %}" class="hover:text-indigo-600">Perfil</a>
         <a href="{% url 'core:dashboard' %}" class="hover:text-indigo-600">Dashboard</a>
         {% if user.is_authenticated %}
         <span class="text-slate-500">Olá, {{ user.get_short_name|default:user.username }}</span>

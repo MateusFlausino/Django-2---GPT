@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Perfil · URN{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold tracking-tight mb-4">Configurações do Perfil</h1>
+
+<div class="max-w-xl">
+  <form method="post" class="p-6 rounded-2xl border bg-white shadow-sm">
+    {% csrf_token %}
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">URN do modelo (APS/Tandem)</label>
+        {{ form.aps_urn }}
+        <p class="text-xs text-slate-500 mt-1">
+          Cole aqui o URN (base64) do seu modelo já processado no APS/Model Derivative.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Tandem Project ID (opcional)</label>
+          {{ form.tandem_project_id }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Tandem Twin ID (opcional)</label>
+          {{ form.tandem_twin_id }}
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">
+          Salvar
+        </button>
+        <a class="px-4 py-2 rounded-xl border" href="{% url 'core:viewer' %}">Abrir Viewer</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
